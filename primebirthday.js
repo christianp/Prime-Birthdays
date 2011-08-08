@@ -4,7 +4,7 @@ primes.find = function(n)
 {
 	for(var i=0;i<primes.length;i++)
 	{
-		if(primes[i]>n) { return i; }
+		if(primes[i]>=n) { return i; }
 	}
 };
 
@@ -12,15 +12,29 @@ primes.find = function(n)
 var day,lastp;
 
 //called when user picks a date from the picker
-function pickDate(dateText,inst)
+function changeDate(dateText,inst)
 {
-	day = new Date(dateText);	//get user's birth date
+	pickDate(new Date($(this).datepicker('getDate')));
+}
+
+function changeYear(year,month,inst)
+{
+	pickDate(new Date($(this).datepicker('getDate')));
+}
+
+function pickDate(newday)
+{
+	day = newday;
 	var d = (new Date())-(day);	//number of milliseconds since user's birth
-	var n = d/(1000*60*60*24);	//number of days ditto
+	var n = Math.floor(d/(1000*60*60*24));	//number of days ditto
 	lastp = primes.find(n);		//index of least prime bigger than n
 	var n2 = primes[lastp];		//least prime bigger than n (this is the next prime birthday)
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());	//date of that birthday
-	$('#date').html('Your next prime birthday is on '+formatPrimeDay(d2,n2));	//tell the user
+	console.log(d2);
+	if(d2.toDateString() == (new Date()).toDateString())
+		$('#date').html("<p>It's your <b>"+formatOrdinal(lastp+1)+"</b> prime birthday today, <b>"+n2+"</b> days after your birth!</p><h1>Happy prime birthday!</h1>");
+	else
+		$('#date').html(formatPrimeDay(lastp,d2,n2));	//tell the user
 	$('#more').show();	//enable the 'what's next?' button
 }
 
@@ -29,17 +43,38 @@ function moreDates()
 	lastp++;
 	var n2 = primes[lastp];
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());
-	$('#date').append('<br/>'+formatPrimeDay(d2,n2));
+	$('#date').append('<br/>'+formatPrimeDay(lastp,d2,n2));
 }
 
-function formatPrimeDay(d2,n2)
+function formatPrimeDay(p,d2,n2)
 {
-	return( "<b>"+d2.toDateString()+'</b> (<b>'+n2+'</b> days after your birth)');
+	return( "Your <b>"+formatOrdinal(p+1)+"</b> prime birthday is on <b>"+d2.toDateString()+'</b> (<b>'+n2+'</b> days after your birth)');
+}
+
+function formatOrdinal(n)
+{
+	switch(n % 10)
+	{
+	case 1:
+		return n+'st';
+	case 2:
+		return n+'nd';
+	case 3:
+		return n+'rd';
+	default:
+		return n+'th';
+	}
 }
 
 $(document).ready(function ()
 {
-	$('#datepicker').datepicker({onSelect: pickDate, changeYear: true, yearRange:'1900:2010'});
+	$('#datepicker')
+		.datepicker({
+			onSelect: changeDate,
+			onChangeMonthYear: changeYear,
+			changeYear: true,
+			changeMonth: true,
+			yearRange:'1900:2100',
+		})
 	$('#more').hide().click(moreDates);
-	//$('#dates').html('<b>hey</b>');
 });
