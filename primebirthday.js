@@ -17,11 +17,6 @@ function changeDate(dateText,inst)
 	pickDate(new Date($(this).datepicker('getDate')));
 }
 
-function changeYear(year,month,inst)
-{
-	pickDate(new Date($(this).datepicker('getDate')));
-}
-
 function pickDate(newday)
 {
 	day = newday;
@@ -30,10 +25,9 @@ function pickDate(newday)
 	lastp = primes.find(n);		//index of least prime bigger than n
 	var n2 = primes[lastp];		//least prime bigger than n (this is the next prime birthday)
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());	//date of that birthday
-	console.log(d2);
-	if(d2.toDateString() == (new Date()).toDateString())
-		$('#date').html("<p>It's your <b>"+formatOrdinal(lastp+1)+"</b> prime birthday today, <b>"+n2+"</b> days after your birth!</p><h1>Happy prime birthday!</h1>");
-	else
+//	if(d2.toDateString() == (new Date()).toDateString())
+//		$('#date').html("<p>It's your <b>"+formatOrdinal(lastp)+"</b> prime birthday today, <b>"+n2+"</b> days after your birth!</p><h1>Happy prime birthday!</h1>");
+//	else
 		$('#date').html(formatPrimeDay(lastp,d2,n2));	//tell the user
 	$('#more').show();	//enable the 'what's next?' button
 }
@@ -48,11 +42,30 @@ function moreDates()
 
 function formatPrimeDay(p,d2,n2)
 {
-	return( "Your <b>"+formatOrdinal(p+1)+"</b> prime birthday is on <b>"+d2.toDateString()+'</b> (<b>'+n2+'</b> days after your birth)');
+	var out = format(
+		'Your <b>%s</b> prime birthday is on <b>%s</b>, <b>%s</b> days after your birth.',
+		formatOrdinal(p),
+		d2.toDateString(),
+		n2
+	);
+	if((t=tuply(p+1))[0]>0)
+	{
+		out+=format(
+			' (This is your <b>%s</b> <i>%s</i> prime birthday!)',
+			formatOrdinal(t[1]),
+			tupleNames[t[0]]
+		);
+	}
+	return out;
 }
 
 function formatOrdinal(n)
 {
+	n++;
+
+	if(n>10 && n<20)
+		return n+'th';
+
 	switch(n % 10)
 	{
 	case 1:
@@ -66,12 +79,51 @@ function formatOrdinal(n)
 	}
 }
 
+function primeprimes(arr)
+{
+	var out = [];
+	for(var i=0;primes[i]<=arr.length;i++)
+	{
+		out.push(arr[primes[i]-1]);
+	}
+	return out;
+}
+function tuply(n)
+{
+	if(primes.indexOf(n)==-1)
+		return [0,0];
+
+	var p = primes, i=1, op =p;
+	var op;
+	while((p=primeprimes(p)).indexOf(n)>=0)
+	{
+		i++;
+		op=p;
+	}
+	return [i,op.indexOf(n)];
+}
+var tupleNames = ['singly','doubly','triply','quadruply','quintuply','sextuply','septuply','octuply','nonuply'];
+
+function format(s)
+{
+	var re = /%s/g;
+	var i=1, li=0, out='';
+	while(m=re.exec(s))
+	{
+		out+=s.slice(li,m.index)+arguments[i];
+		i++;
+		li=re.lastIndex;
+	}
+	out+=s.slice(li);
+	return out;
+}
+
 $(document).ready(function ()
 {
 	$('#datepicker')
 		.datepicker({
 			onSelect: changeDate,
-			onChangeMonthYear: changeYear,
+			onChangeMonthYear: changeDate,
 			changeYear: true,
 			changeMonth: true,
 			yearRange:'1900:2100',
