@@ -25,10 +25,7 @@ function pickDate(newday)
 	lastp = primes.find(n);		//index of least prime bigger than n
 	var n2 = primes[lastp];		//least prime bigger than n (this is the next prime birthday)
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());	//date of that birthday
-//	if(d2.toDateString() == (new Date()).toDateString())
-//		$('#date').html("<p>It's your <b>"+formatOrdinal(lastp)+"</b> prime birthday today, <b>"+n2+"</b> days after your birth!</p><h1>Happy prime birthday!</h1>");
-//	else
-		$('#date').html(formatPrimeDay(lastp,d2,n2));	//tell the user
+	$('#date').html(formatPrimeDay(lastp,d2,n2));	//tell the user
 	$('#more').show();	//enable the 'what's next?' button
 }
 
@@ -37,21 +34,33 @@ function moreDates()
 	lastp++;
 	var n2 = primes[lastp];
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());
-	$('#date').append('<br/>'+formatPrimeDay(lastp,d2,n2));
+	$('#date').append('<hr/>'+formatPrimeDay(lastp,d2,n2));
 }
 
 function formatPrimeDay(p,d2,n2)
 {
-	var out = format(
-		'Your <b>%s</b> prime birthday is on <b>%s</b>, <b>%s</b> days after your birth.',
-		formatOrdinal(p),
-		d2.toDateString(),
-		n2
-	);
+	var out;
+	if(d2.toDateString() == (new Date()).toDateString())
+	{
+		out=format(
+			"<p>It's your <b>%s</b> prime birthday today, <b>%s</b> days after your birth!</p><h1>Happy prime birthday!</h1>",
+			formatOrdinal(p),
+			n2
+		);
+	}
+	else
+	{
+		out = format(
+			'<p>Your <b>%s</b> prime birthday is on <b>%s</b>, <b>%s</b> days after your birth.</p>',
+			formatOrdinal(p),
+			d2.toDateString(),
+			n2
+		);
+	}
 	if((t=tuply(p+1))[0]>0)
 	{
 		out+=format(
-			' (This is your <b>%s</b> <i>%s</i> prime birthday!)',
+			'<p>This is your <b>%s</b> <i>%s</i> prime birthday!</p>',
 			formatOrdinal(t[1]),
 			tupleNames[t[0]]
 		);
