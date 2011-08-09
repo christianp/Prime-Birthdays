@@ -35,6 +35,7 @@ function moreDates()
 	var n2 = primes[lastp];
 	var d2 = new Date(n2*1000*60*60*24+day.getTime());
 	$('#date').append('<hr/>'+formatPrimeDay(lastp,d2,n2));
+	scrollTo(0,$('#more').offset().top);
 }
 
 function formatPrimeDay(p,d2,n2)
@@ -72,7 +73,7 @@ function formatOrdinal(n)
 {
 	n++;
 
-	if(n>10 && n<20)
+	if(n%100>10 && n%100<20)
 		return n+'th';
 
 	switch(n % 10)
